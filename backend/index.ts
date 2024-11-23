@@ -1,7 +1,2 @@
-import app from "./app.ts";
-
-Bun.serve({
-  fetch: app.fetch,
-});
-
-console.log("running bun server....");
+import { createBunWebSocket } from "hono/bun";
+import type { ServerWebSocket } from "bun";

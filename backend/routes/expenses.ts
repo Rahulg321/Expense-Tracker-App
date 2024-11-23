@@ -2,13 +2,8 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
-type Expense = {
-  id: number;
-  title: string;
-  amount: number;
-};
-
-const createPostSchema = z.object({
+const expenseSchema = z.object({
+  id: z.number().int().positive().min(1),
   title: z
     .string()
     .min(3, {
@@ -19,6 +14,11 @@ const createPostSchema = z.object({
     }),
   amount: z.number().int().positive(),
 });
+
+type Expense = z.infer<typeof expenseSchema>;
+
+// id need not be present
+const createPostSchema = expenseSchema.omit({ id: true });
 
 const fakeExpenses: Expense[] = [
   {
