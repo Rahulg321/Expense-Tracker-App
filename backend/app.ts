@@ -5,6 +5,9 @@ import { expensesRoutes } from "./routes/expenses";
 import { prettyJSON } from "hono/pretty-json";
 import { createBunWebSocket } from "hono/bun";
 import type { ServerWebSocket } from "bun";
+import { serveStatic } from 'hono/bun'
+
+
 
 const { upgradeWebSocket, websocket } = createBunWebSocket<ServerWebSocket>();
 
@@ -14,6 +17,7 @@ app.use(prettyJSON());
 
 app.use(logger());
 
+// finally opened a web socket connection
 app.get(
   "/ws",
   upgradeWebSocket((c) => {
@@ -32,13 +36,17 @@ app.get(
   })
 );
 
-app.route("/api/authors", authorsRoutes);
-app.route("/api/expenses", expensesRoutes);
+const apiRoutes = app.basePath("/api").route("/authors", authorsRoutes).route("/expenses", expensesRoutes);
 
-Bun.serve({
-  port: 4000,
+app.get('*', serveStatic({ root: '../frontend/dist' }))
+app.get('*', serveStatic({ path: '../frontend/dist/index.html' }))
+
+export type ApiRoutes = typeof apiRoutes
+
+const server = Bun.serve({
+  port: 3000,
   fetch: app.fetch,
   websocket,
 });
 
-console.log("running bun server....4000");
+console.log(`running bun server....${server.port}`);

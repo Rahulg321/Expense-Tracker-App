@@ -36,12 +36,24 @@ const fakeExpenses: Expense[] = [
     title: "Car Insurance",
     amount: 200,
   },
+  {
+    id: 4,
+    title: "Playstation",
+    amount: 499,
+  },
 ];
 
 export const expensesRoutes = new Hono()
   .get("/", (c) => {
     return c.json({
       expenses: fakeExpenses,
+    });
+  })
+  .get("/total-expenses", async (c) => {
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    const total = fakeExpenses.reduce((acc, expense)=> acc + expense.amount, 0)
+    return c.json({
+      total,
     });
   })
   //   this regular expression will make sure it is always a number;
